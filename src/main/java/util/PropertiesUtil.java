@@ -52,7 +52,18 @@ public class PropertiesUtil {
         return properties.getProperty(key);
     }
     
+    /**
+     * 获取属性int值
+     * @param key
+     * @return
+     */
+    public Integer getIntegerProperty(String key) {
+    	String value = properties.getProperty(key);
+        return Integer.valueOf(value);
+    }
+    
+    
     public static void main(String[] args) {
-		log.info("==datasouce driver:"+PropertiesUtil.getInstance().getProperty("env"));
+		log.info("serverList:"+PropertiesUtil.getInstance().getProperty("serverList"));
 	}
 }

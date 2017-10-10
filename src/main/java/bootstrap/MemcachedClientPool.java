@@ -24,15 +24,57 @@ import util.PropertiesUtil;
  * 2017年10月10日
  * 下午12:49:45
  */
-public class MemcachedClientTest {
-	private static final Logger log = LoggerFactory.getLogger(MemcachedClientTest.class);
+public class MemcachedClientPool {
+	private static final Logger log = LoggerFactory.getLogger(MemcachedClientPool.class);
 	private static final String MEMCACHED_SERVER_LIST = "serverList";
+	private static final String MEMCACHED_POOL_SIZE = "poolSize";
 	private static PropertiesUtil  propertiesUtil = PropertiesUtil.getInstance();
-	public static void main(String[] args) {
+	private static MemcachedClientBuilder builder;
+	private static MemcachedClient memcachedClient;
+	static{
 		String serverList = propertiesUtil.getProperty(MEMCACHED_SERVER_LIST);
 		List<InetSocketAddress> serverAddresses = AddrUtil.getAddresses(serverList);
-		MemcachedClientBuilder builder = new XMemcachedClientBuilder(serverAddresses);
-		MemcachedClient memcachedClient = null;
+		int poolSize = propertiesUtil.getIntegerProperty(MEMCACHED_POOL_SIZE);
+		builder = new XMemcachedClientBuilder(serverAddresses);
+		builder.setConnectionPoolSize(poolSize);
+	}
+	/**
+	 * 
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public boolean set(String key,String value){
+		return set(key, 0, value);
+	}
+	/**
+	 * 
+	 * @param key
+	 * @param expire 过期时间秒
+	 * @param value
+	 * @return
+	 */
+	public boolean set(String key,int expire,String value){
+		boolean finish = false;
+		try {
+			memcachedClient = builder.build();
+			finish = memcachedClient.set(key, expire, value);
+		} catch (IOException e) {
+			log.error("连接异常");
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			log.error("设值超时");
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			log.error("中断异常");
+			e.printStackTrace();
+		} catch (MemcachedException e) {
+			log.error("设值错误");
+			e.printStackTrace();
+		}
+		return finish;
+	}
+	public static void main(String[] args) {
 		try {
 			memcachedClient = builder.build();
 			memcachedClient.set("name", 0, "donald");
