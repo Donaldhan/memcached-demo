@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PropertiesUtil {
 	private static final Logger log  = LoggerFactory.getLogger(PropertiesUtil.class);
+	private static final String MEMCACHED_CONFIG_FILE = "memcached.properties";
     private static volatile PropertiesUtil instance = null;
     private static Properties properties = null;
     static{
@@ -25,7 +26,7 @@ public class PropertiesUtil {
          }
          try {
         	 InputStream inputStream = Thread.currentThread().getContextClassLoader()
-        	            .getResourceAsStream("config.properties");
+        	            .getResourceAsStream(MEMCACHED_CONFIG_FILE);
         	 properties.load(inputStream);
          } catch (IOException e1) {
              e1.printStackTrace();

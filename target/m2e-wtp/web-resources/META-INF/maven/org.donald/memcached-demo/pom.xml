@@ -17,6 +17,7 @@
 		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
 		<demo.version>0.0.1-SNAPSHOT</demo.version>
 		<jackson-2-version>2.3.2</jackson-2-version>
+		<xmemcached.version>2.3.2</xmemcached.version>
 	</properties>
 	<repositories>
 	<!-- 	<repository>
@@ -34,6 +35,11 @@
 		</repository>
 	</repositories>
 	<dependencies>
+		<dependency>
+		    <groupId>com.googlecode.xmemcached</groupId>
+		    <artifactId>xmemcached</artifactId>
+		    <version>${xmemcached.version}</version>
+		</dependency>
 	    <dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
