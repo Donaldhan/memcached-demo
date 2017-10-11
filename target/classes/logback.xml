@@ -2,7 +2,7 @@
 
 <configuration scan="true" debug="false">
 	<!-- 应用名称 -->
-	<property name="APP_NAME" value="mockito-demo" />
+	<property name="APP_NAME" value="memcached-demo" />
 
 	<property name="LOG_HOME" value="${log.dir:-logs}/${APP_NAME}" />
 
