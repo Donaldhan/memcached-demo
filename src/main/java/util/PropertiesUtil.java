@@ -57,13 +57,13 @@ public class PropertiesUtil {
      * @param key
      * @return
      */
-    public Integer getIntegerProperty(String key) {
+    public Integer getInteger(String key) {
     	String value = properties.getProperty(key);
         return Integer.valueOf(value);
     }
     
     
     public static void main(String[] args) {
-		log.info("serverList:"+PropertiesUtil.getInstance().getProperty("serverList"));
+		log.info("serverList:"+PropertiesUtil.getInstance().getProperty("standbyServerList"));
 	}
 }
