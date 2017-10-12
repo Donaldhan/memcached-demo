@@ -1,5 +1,5 @@
 # memcached-demo
-test memcached
+test memcached with xmemcached client
 
 the package client in src/main/java is the Memcache standby,distribute,failure and sasl client
 
