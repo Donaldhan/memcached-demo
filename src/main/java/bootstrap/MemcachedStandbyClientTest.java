@@ -5,6 +5,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bootstrap.client.MemcachedStandbyClient;
 import net.rubyeye.xmemcached.Counter;
 import net.rubyeye.xmemcached.exception.MemcachedException;
 

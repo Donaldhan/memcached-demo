@@ -1,4 +1,4 @@
-package bootstrap;
+package bootstrap.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

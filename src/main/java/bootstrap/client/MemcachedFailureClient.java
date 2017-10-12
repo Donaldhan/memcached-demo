@@ -1,8 +1,9 @@
-package bootstrap;
+package bootstrap.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -14,43 +15,27 @@ import net.rubyeye.xmemcached.MemcachedClient;
 import net.rubyeye.xmemcached.MemcachedClientBuilder;
 import net.rubyeye.xmemcached.XMemcachedClientBuilder;
 import net.rubyeye.xmemcached.exception.MemcachedException;
-import net.rubyeye.xmemcached.impl.KetamaMemcachedSessionLocator;
 import net.rubyeye.xmemcached.utils.AddrUtil;
 import util.PropertiesUtil;
 
 /**
- * Memcached distribution 客户端
- * Memcached的分布是通过客户端实现的，客户端根据key的哈希值得到将要存储的memcached节点，
- * 并将对应的value存储到相应的节点。
- * XMemcached同样支持客户端的分布策略，默认分布的策略是按照key的哈希值模以连接数得到的余数，
- * 对应的连接就是将要存储的节点。如果使用默认的分布策略，你不需要做任何配置或者编程。
- * XMemcached同样支持一致性哈希（consistent hash)，通过编程设置：
- * MemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil
- *				.getAddresses(properties.getProperty("test.memcached.servers"))
- * builder.setSessionLocator(new KetamaMemcachedSessionLocator());
- * MemcachedClient client=builder.build();
- * 具体一致性哈希算法原理见：http://www.csdn.net/article/2016-03-16/2826609
- * XMemcached还提供了额外的一种哈希算法——选举散列,在某些场景下可以替代一致性哈希
- * MemcachedClientBuilder builder = new XMemcachedClientBuilder(
- *                AddrUtil.getAddresses("server1:11211 server2:11211 server3:11211"));
- * builder.setSessionLocator(new ElectionMemcachedSessionLocator());
- * MemcachedClient mc = builder.build();
+ * Memcached Failure 模式客户端
  * @author donald
  * 2017年10月10日
  * 下午12:49:45
  */
-public class MemcachedDistributeClient {
-	private static final Logger log = LoggerFactory.getLogger(MemcachedDistributeClient.class);
-	private static final String MEMCACHED_SERVER_LIST = "distributeServerList";
+public class MemcachedFailureClient {
+	private static final Logger log = LoggerFactory.getLogger(MemcachedFailureClient.class);
+	private static final String MEMCACHED_SERVER_LIST = "failureServerList";
 	private static PropertiesUtil  propertiesUtil = PropertiesUtil.getInstance();
-	private static volatile MemcachedDistributeClient instance;
+	private static volatile MemcachedFailureClient instance;
 	private static MemcachedClientBuilder builder;
 	private static MemcachedClient memcachedClient;
 	static{
-		String distributeServerList = propertiesUtil.getProperty(MEMCACHED_SERVER_LIST);
-		List<InetSocketAddress> serverAddresses = AddrUtil.getAddresses(distributeServerList);
-		builder = new XMemcachedClientBuilder(serverAddresses);
-		builder.setSessionLocator(new KetamaMemcachedSessionLocator());
+		String failureServerList = propertiesUtil.getProperty(MEMCACHED_SERVER_LIST);
+		Map<InetSocketAddress, InetSocketAddress> serverAddressesMap = AddrUtil.getAddressMap(failureServerList);
+		builder = new XMemcachedClientBuilder(serverAddressesMap);
+		builder.setFailureMode(true);
 		try {
 			memcachedClient = builder.build();
 		} catch (IOException e) {
@@ -58,9 +43,9 @@ public class MemcachedDistributeClient {
 			e.printStackTrace();
 		}
 	}
-	public static synchronized MemcachedDistributeClient getInstance() {
+	public static synchronized MemcachedFailureClient getInstance() {
 		if (instance == null) {
-			instance = new MemcachedDistributeClient();
+			instance = new MemcachedFailureClient();
 		}
 		return instance;
 	}

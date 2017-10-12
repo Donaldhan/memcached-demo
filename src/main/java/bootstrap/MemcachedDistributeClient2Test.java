@@ -5,6 +5,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bootstrap.client.MemcachedDistributeClient;
 import net.rubyeye.xmemcached.Counter;
 import net.rubyeye.xmemcached.exception.MemcachedException;
 
@@ -15,8 +16,8 @@ import net.rubyeye.xmemcached.exception.MemcachedException;
  * 2017年10月10日 
  * 下午12:49:45
  */
-public class MemcachedDistributeClientTest2 {
-	private static final Logger log = LoggerFactory.getLogger(MemcachedDistributeClientTest2.class);
+public class MemcachedDistributeClient2Test {
+	private static final Logger log = LoggerFactory.getLogger(MemcachedDistributeClient2Test.class);
 	public static void main(String[] args) {
 		MemcachedDistributeClient memcachedClient = MemcachedDistributeClient.getInstance();
 		memcachedClient.flushAll();
