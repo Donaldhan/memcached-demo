@@ -1,25 +1,26 @@
-package bootstrap;
+package client;
+
 
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bootstrap.client.MemcachedFailureClient;
+import client.MemcachedStandbyClient;
 import net.rubyeye.xmemcached.Counter;
 import net.rubyeye.xmemcached.exception.MemcachedException;
 
 /**
- * Memcached  Failure 模式客户端测试类
+ * Memcached Standby模式 客户端测试类
  * @author 
  * donald 
  * 2017年10月10日 
  * 下午12:49:45
  */
-public class MemcachedFailureClientTest {
-	private static final Logger log = LoggerFactory.getLogger(MemcachedFailureClientTest.class);
+public class MemcachedStandbyClientTest {
+	private static final Logger log = LoggerFactory.getLogger(MemcachedStandbyClientTest.class);
 	public static void main(String[] args) {
-		MemcachedFailureClient memcachedClient = MemcachedFailureClient.getInstance();
+		MemcachedStandbyClient memcachedClient = MemcachedStandbyClient.getInstance();
 		memcachedClient.set("name", 0, "donald");
 		String value = (String) memcachedClient.get("name");
 		log.info("set name={}", value);
@@ -79,6 +80,7 @@ public class MemcachedFailureClientTest {
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 		}
+		memcachedClient.flushAll();
 		memcachedClient.shutdown();
 	}
 }

@@ -1,4 +1,4 @@
-package bootstrap.client;
+package client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,43 +14,37 @@ import net.rubyeye.xmemcached.MemcachedClient;
 import net.rubyeye.xmemcached.MemcachedClientBuilder;
 import net.rubyeye.xmemcached.XMemcachedClientBuilder;
 import net.rubyeye.xmemcached.exception.MemcachedException;
-import net.rubyeye.xmemcached.impl.KetamaMemcachedSessionLocator;
 import net.rubyeye.xmemcached.utils.AddrUtil;
 import util.PropertiesUtil;
 
 /**
- * Memcached distribution 客户端
- * Memcached的分布是通过客户端实现的，客户端根据key的哈希值得到将要存储的memcached节点，
- * 并将对应的value存储到相应的节点。
- * XMemcached同样支持客户端的分布策略，默认分布的策略是按照key的哈希值模以连接数得到的余数，
- * 对应的连接就是将要存储的节点。如果使用默认的分布策略，你不需要做任何配置或者编程。
- * XMemcached同样支持一致性哈希（consistent hash)，通过编程设置：
- * MemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil
- *				.getAddresses(properties.getProperty("test.memcached.servers"))
- * builder.setSessionLocator(new KetamaMemcachedSessionLocator());
- * MemcachedClient client=builder.build();
- * 具体一致性哈希算法原理见：http://www.csdn.net/article/2016-03-16/2826609
- * XMemcached还提供了额外的一种哈希算法——选举散列,在某些场景下可以替代一致性哈希
- * MemcachedClientBuilder builder = new XMemcachedClientBuilder(
- *                AddrUtil.getAddresses("server1:11211 server2:11211 server3:11211"));
- * builder.setSessionLocator(new ElectionMemcachedSessionLocator());
- * MemcachedClient mc = builder.build();
+ * Memcached Standby模式 客户端
  * @author donald
  * 2017年10月10日
  * 下午12:49:45
  */
-public class MemcachedDistributeClient {
-	private static final Logger log = LoggerFactory.getLogger(MemcachedDistributeClient.class);
-	private static final String MEMCACHED_SERVER_LIST = "distributeServerList";
+public class MemcachedStandbyClient {
+	private static final Logger log = LoggerFactory.getLogger(MemcachedStandbyClient.class);
+	private static final String MEMCACHED_SERVER_LIST = "standbyServerList";
+	private static final String MEMCACHED_POOL_SIZE = "poolSize";
 	private static PropertiesUtil  propertiesUtil = PropertiesUtil.getInstance();
-	private static volatile MemcachedDistributeClient instance;
+	private static volatile MemcachedStandbyClient instance;
 	private static MemcachedClientBuilder builder;
 	private static MemcachedClient memcachedClient;
 	static{
-		String distributeServerList = propertiesUtil.getProperty(MEMCACHED_SERVER_LIST);
-		List<InetSocketAddress> serverAddresses = AddrUtil.getAddresses(distributeServerList);
+		String standbyServerList = propertiesUtil.getProperty(MEMCACHED_SERVER_LIST);
+		List<InetSocketAddress> serverAddresses = AddrUtil.getAddresses(standbyServerList);
 		builder = new XMemcachedClientBuilder(serverAddresses);
-		builder.setSessionLocator(new KetamaMemcachedSessionLocator());
+		/**
+		 * Xmemcached是基于java nio的client实现，默认对一个memcached节点只有一个连接，
+		 * 这在通常情况下已经有非常优异的表现。但是在典型的高并发环境下,nio的单连接也会遇到性能瓶颈。
+		 * 因此XMemcached支持设置nio的连接池，允许建立多个连接到同一个memcached节点，
+		 * 但是请注意，这些连接之间是不同步的，因此你的应用需要自己保证数据更新的同步，启用连接池可以通过下面代码：
+		 */
+		
+		/*int poolSize = propertiesUtil.getInteger(MEMCACHED_POOL_SIZE);
+		builder.setConnectionPoolSize(poolSize);
+		*/
 		try {
 			memcachedClient = builder.build();
 		} catch (IOException e) {
@@ -58,9 +52,9 @@ public class MemcachedDistributeClient {
 			e.printStackTrace();
 		}
 	}
-	public static synchronized MemcachedDistributeClient getInstance() {
+	public static synchronized MemcachedStandbyClient getInstance() {
 		if (instance == null) {
-			instance = new MemcachedDistributeClient();
+			instance = new MemcachedStandbyClient();
 		}
 		return instance;
 	}

@@ -1,8 +1,7 @@
-package bootstrap.client;
+package client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
